@@ -1,8 +1,20 @@
+/**
+ * An atempt at mapping Solr-4.4.0 into Backbone's Model and Collection objects
+ * using the REST interface Solr provides.
+ * The implementation is only tested for the example-schemaless configuation
+ * that Solr provides with their official downloads.
+ *
+ * The idea is that the implementation should support default usage of Backbone.
+ * Though that may not (yet) be the case.
+ */
 (function ($, undefined) {
 	'use strict';
 
 	var uuid = window.uuid;
 
+	/**
+	 *
+	 */
 	var SolrModel = Backbone.Model.extend({
 
 		crudSolrKeyMap: {
@@ -103,12 +115,12 @@
 				options.contentType = 'application/json';
 				options.method = 'POST';
 			} else {
-				// We only support fetching by ID so far
+				// We only support fetching single Models by ID so far
 				options.method = 'GET';
 				options.data = {
 					id: model.get('id')
 				};
-				// options.contentType = 'application/json';
+
 				return Backbone.Model.prototype.sync.apply(this, arguments);
 			}
 
@@ -120,6 +132,7 @@
 		},
 
 		parse: function (fields) {
+			// Prevents odd returns from Solr after a save
 			if (!_.isObject(fields)) {
 				return;
 			}
@@ -148,7 +161,7 @@
 	});
 
 	var SolrCollection = Backbone.Collection.extend({
-		url: '/solr/collection1',
+		url: '/solr/reposauthor',
 		model: SolrModel,
 
 		parse: function (response) {
@@ -175,6 +188,7 @@
 
 				options.data = options.data || {};
 
+				// TODO, this should probably be extracted from here into Authoring itself
 				(options = options || {}).data = {
 					fq: 'modeltype:' + options.query.modeltype,
 					q: this._splitQuery(_.omit(options.query, 'modeltype')),
