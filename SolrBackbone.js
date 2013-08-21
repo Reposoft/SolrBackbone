@@ -17,19 +17,6 @@
 	 */
 	var SolrModel = Backbone.Model.extend({
 
-		crudSolrKeyMap: {
-			'create': 'add',
-			'read': 'select',
-			'update': 'add',
-			'delete': 'delete'
-		},
-
-		solrDefaults: {
-			boost: 1.0,
-			overwrite: true,
-			commitWithin: 1000
-		},
-
 		_stringifyMultiObjects: function (attributes) {
 			return this._traverseMultiObjects(attributes, function (arrVal) {
 				if (_.isObject(arrVal)) {
@@ -65,7 +52,7 @@
 			return attrs;
 		},
 
-		_crudSolrData: function (method) {
+		_parseToSolrData: function (method) {
 			if (method === 'delete') {
 				// Only ID
 				return { id : this.id };
@@ -81,26 +68,13 @@
 
 				attributes = this._stringifyMultiObjects(attributes);
 
-				return _.extend({ doc: attributes }, this.solrDefaults);
+				return [attributes];
 			}
-		},
-
-		_parseToSolrData: function (method) {
-			var
-				data = {},
-
-				key = this.crudSolrKeyMap[method],
-
-				value = this._crudSolrData(method);
-
-			data[key] = value;
-
-			return data;
 		},
 
 		urlRoot: function (method) {
 			return this.collection.url + '/' +
-				(method === 'read' ? 'get' : 'update') + '?wt=json';
+				(method === 'read' ? 'get?wt=json' : 'update/json?commit=true');
 		},
 
 		sync: function (method, model, options) {
@@ -144,19 +118,7 @@
 				fields = fields.doc;
 			}
 
-			var result = {};
-
-			_.each(fields, function (value, key) {
-				if (_.isArray(value) && value.length === 1) {
-					result[key] = value[0];
-				} else {
-					result[key] = value;
-				}
-			});
-
-			result = this._parseMultiObjects(result);
-
-			return result;
+			return this._parseMultiObjects(fields);
 		}
 	});
 
