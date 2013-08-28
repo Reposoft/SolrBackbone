@@ -68,7 +68,7 @@
 
 				attributes = this._stringifyMultiObjects(attributes);
 
-				return [attributes];
+				return { 'add': { 'doc': attributes } };
 			}
 		},
 
