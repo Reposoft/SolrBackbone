@@ -74,7 +74,7 @@
 
 		urlRoot: function (method) {
 			return this.collection.url + '/' +
-				(method === 'read' ? 'get?wt=json' : 'update/json?commit=true');
+				(method === 'read' ? 'get?wt=json' : 'update?wt=json&commit=true');
 		},
 
 		sync: function (method, model, options) {
