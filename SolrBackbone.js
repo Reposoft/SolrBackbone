@@ -123,7 +123,6 @@
 	});
 
 	var SolrCollection = Backbone.Collection.extend({
-		url: '/solr/reposauthor',
 		model: SolrModel,
 
 		parse: function (response) {
