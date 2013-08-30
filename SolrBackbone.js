@@ -68,6 +68,13 @@
 
 				attributes = this._stringifyMultiObjects(attributes);
 
+				// Solr will fail with NullPointerException if these are sent
+				var nulls = _.reject(attributes, function (value) {
+					return value === null || value === undefined;
+				});
+
+				attributes = _.omit(attributes, nulls);
+
 				return { 'add': { 'doc': attributes } };
 			}
 		},
@@ -135,27 +142,9 @@
 			return jsonArray;
 		},
 
-		_splitQuery: function (query) {
-			var string = "";
-			_.each(query, function (value, key) {
-				string += key + ':' + '"' + value + '"' + '&';
-			});
-			return _.initial(string.split('&')).join('&');
-		},
-
 		sync: function (method, model, options) {
 			if (method === 'read') {
 				options.url = this.url + '/select';
-
-				options.data = options.data || {};
-
-				// TODO, this should probably be extracted from here into Authoring itself
-				(options = options || {}).data = {
-					fq: 'modeltype:' + options.query.modeltype,
-					q: this._splitQuery(_.omit(options.query, 'modeltype')),
-					wt: 'json'
-				};
-
 			}
 
 			return Backbone.Collection.prototype.sync.apply(this, arguments);
