@@ -144,7 +144,7 @@
 
 		sync: function (method, model, options) {
 			if (method === 'read') {
-				options.url = this.url + '/select';
+				options.url = this.url + '/select?wt=json';
 			}
 
 			return Backbone.Collection.prototype.sync.apply(this, arguments);
